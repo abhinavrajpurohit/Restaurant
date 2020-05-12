@@ -1,0 +1,74 @@
+<!-- Restaurant Container -->
+<ng-container *ngIf="!isLoading">
+  <div class="w-100 p-3 bg-light restaurant-container">
+    <!-- Restaurant Heading -->
+    <div class="restaurant-title">
+      <h3 class="w-100 text-muted">Restaurants</h3>
+    </div>
+    <!-- Search Restaurant -->
+    <div class="d-flex mt-3 restaurant-search">
+      <input class="w-25 pl-2" [(ngModel)]="searchText" placeholder="Search restaurant by name">
+      <a href="javascript:void(0)" (click)="searchText=''" class="btn btn-info ml-2">Reset</a>
+    </div>
+    <!-- List of Restaurants -->
+    <div class="d-flex flex-wrap mt-3 restaurant-list">
+      <ng-container *ngFor="let restaurant of restaurants | filter : searchText">
+        <div class="m-2 bg-info card">
+          <!-- Restaurant Image-->
+          <div class="d-flex w-100 px-3">
+            <img class="card-img-top" src="{{restaurant?.logo}}" alt="Card image cap">
+            <h5 class="card-title text-white pt-4 pl-2 text-break font-weight-bold">{{restaurant?.name}}</h5>
+          </div>
+          <!-- Restaurant Name Desciption and Location-->
+          <div class="pt-0 card-body text-white">
+            <!-- Ellipsis for Restaurant Long Description -->
+            <p class="card-text">
+              {{restaurant?.description | ellipsis: 70}}
+              <span *ngIf="restaurant?.description.length > 70">
+                <a href="javascript:void(0)" class="text-warning" (click)="showDescription(restaurant)">Read More</a>
+              </span>
+            </p>
+            <!-- Restaurant Location on Map -->
+            <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#map">
+              Location
+            </button>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</ng-container>
+
+<!-- Spinner for data load -->
+<app-spinner *ngIf="isLoading" [isLoading]="isLoading"></app-spinner>
+
+<!-- Restaurants locations on Google Map -->
+<div class="modal fade" id="map" tabindex="-1" role="dialog" aria-labelledby="mapLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <!-- Modal Header-->
+      <div class="modal-header">
+        <h5 class="modal-title" id="mapLabel">Google Map</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <!-- Modal Body-->
+      <div class="modal-body">
+        <!-- Google Map -->
+        <google-map width="100%" [zoom]="zoom" [center]="center" [options]="options">
+          <!-- Google Map Restaurant Markers-->
+          <map-marker #markerElem *ngFor="let restaurant of restaurants" [position]="restaurant.location"
+            [label]="restaurant.name" [title]="restaurant.name" (mapClick)="openInfo(markerElem, restaurant.name)">
+          </map-marker>
+          <map-info-window>{{ infoContent }}</map-info-window>
+        </google-map>
+      </div>
+      <!-- Modal Footer-->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
